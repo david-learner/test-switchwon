@@ -1,0 +1,8 @@
+### 요청 화폐 단위 기본값(USD)로 잔액조회
+GET http://localhost:8080/api/payment/balance?userId=1
+
+### USD로 잔액조회
+GET http://localhost:8080/api/payment/balance?userId=1&returningCurrencyCode=USD
+
+### KRW로 잔액조회
+GET http://localhost:8080/api/payment/balance?userId=1&returningCurrencyCode=KRW
