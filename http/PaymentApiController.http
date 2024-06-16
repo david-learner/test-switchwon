@@ -6,3 +6,14 @@ GET http://localhost:8080/api/payment/balance?userId=1&returningCurrencyCode=USD
 
 ### KRW로 잔액조회
 GET http://localhost:8080/api/payment/balance?userId=1&returningCurrencyCode=KRW
+
+### 결제 예상 결과 조회
+POST http://localhost:8080/api/payment/estimate
+Content-Type: application/json
+
+{
+    "amount": 150.00,
+    "currency": "USD",
+    "merchantId": "Starbucks-001",
+    "userId": 1
+}

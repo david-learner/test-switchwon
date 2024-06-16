@@ -1,8 +1,14 @@
 package com.switchwon.payments.service;
 
+import com.switchwon.payments.domain.PaymentFeeCalculator;
+import com.switchwon.payments.repository.MerchantRepository;
 import com.switchwon.payments.repository.PointRepository;
+import com.switchwon.payments.repository.UserRepository;
 import com.switchwon.payments.service.dto.BalanceRetrievalRequest;
 import com.switchwon.payments.service.dto.BalanceRetrievalResponse;
+import com.switchwon.payments.service.dto.PaymentEstimationRequest;
+import com.switchwon.payments.service.dto.PaymentEstimationResponse;
+import java.math.BigDecimal;
 import java.util.Currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +19,21 @@ public class PaymentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
 
-    private final PointRepository pointRepository;
     private final CurrencyConverter currencyConverter;
+    private final PointRepository pointRepository;
+    private final UserRepository userRepository;
+    private final MerchantRepository merchantRepository;
 
-    public PaymentService(PointRepository pointRepository, CurrencyConverter currencyConverter) {
-        this.pointRepository = pointRepository;
+    public PaymentService(
+            CurrencyConverter currencyConverter,
+            PointRepository pointRepository,
+            UserRepository userRepository,
+            MerchantRepository merchantRepository
+    ) {
         this.currencyConverter = currencyConverter;
+        this.pointRepository = pointRepository;
+        this.userRepository = userRepository;
+        this.merchantRepository = merchantRepository;
     }
 
     /**
@@ -33,6 +48,28 @@ public class PaymentService {
         final var convertedUserMoney = currencyConverter.convert(userMoneyFromPoint, returningCurrency);
 
         return BalanceRetrievalResponse.of(userId.toString(), convertedUserMoney);
+    }
+
+    /**
+     * 결제 예상 결과를 조회한다
+     */
+    public PaymentEstimationResponse getEstimationPaymentResult(PaymentEstimationRequest request) {
+        userRepository.findOneById(request.getUserId());
+        merchantRepository.findByUserMerchantId(request.getMerchantId())
+                .orElseThrow(() -> new IllegalArgumentException("Merchant not found with id: " + request.getMerchantId()));
+        // todo: 결제 금액 정책에 따른 결제 금액 검증(예: 최소 결제 금액, 최대 결제 금액 등)
+        final BigDecimal paymentFee = PaymentFeeCalculator.calculatePaymentFee(request.getAmount());
+        final BigDecimal estimatedTotalAmount = request.getAmount().add(paymentFee);
+
+        return createPaymentEstimationResponse(paymentFee, estimatedTotalAmount, request.getCurrency());
+    }
+
+    private PaymentEstimationResponse createPaymentEstimationResponse(
+            BigDecimal paymentFee,
+            BigDecimal estimatedTotalAmount,
+            String currencyCode
+    ) {
+        return new PaymentEstimationResponse(estimatedTotalAmount, paymentFee, currencyCode);
     }
 
     private Currency createCurrencyOf(String returningCurrencyCode) {
