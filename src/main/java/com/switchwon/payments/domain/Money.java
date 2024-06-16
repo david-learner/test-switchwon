@@ -14,6 +14,10 @@ public class Money {
         this.amount = amount;
     }
 
+    public Money(String currencyCode, BigDecimal amount) {
+        this(Currency.getInstance(currencyCode), amount);
+    }
+
     public Currency getCurrency() {
         return currency;
     }
