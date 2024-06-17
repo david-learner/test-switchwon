@@ -18,7 +18,8 @@ import java.util.Currency;
 @Table(name = "TB_POINT")
 public class Point {
 
-    public static Currency CURRENCY_OF_POINT = Currency.getInstance("KRW");
+    // 포인트가 고정된 화폐 단위
+    public static Currency PEGGED_CURRENCY = Currency.getInstance("KRW");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +38,23 @@ public class Point {
     }
 
     public Money toMoney() {
-        return new Money(CURRENCY_OF_POINT, amount);
+        return new Money(PEGGED_CURRENCY, amount);
+    }
+
+    public void add(Money money) {
+        final var moneyFromPoint = toMoney();
+        final var addedMoney = moneyFromPoint.add(money);
+        this.amount = addedMoney.getAmount();
+    }
+
+    public void subtract(Money money) {
+        final var moneyFromPoint = toMoney();
+        final var subtractedMoney = moneyFromPoint.subtract(money);
+        this.amount = subtractedMoney.getAmount();
+    }
+
+    public boolean hasSufficientPointToPay(Money moneyToPay) {
+        return this.toMoney().isEqualOrBiggerThan(moneyToPay);
     }
 
     @Override

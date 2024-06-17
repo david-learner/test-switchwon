@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.switchwon.payments.service.MockCurrencyConverter;
+import com.switchwon.payments.service.FixedRatioCurrencyConverter;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,14 +17,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(MockCurrencyConverter.class)
+@Import(FixedRatioCurrencyConverter.class)
 class PaymentApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void 잔액조회시_returningCurrencyCode를_전달하지_않으면_USD를_기준으로_잔액결과과_반환된다() throws Exception {
+    @DisplayName("잔액조회시_returningCurrencyCode를_전달하지_않으면_USD를_기준으로_잔액결과과_반환된다")
+    void when_get_balance_if_returning_currency_code_is_not_delivered_then_return_balance_with_usd_currency_code() throws Exception {
         mockMvc.perform(get("/api/payment/balance?userId=1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("userId").value("1"))
@@ -33,7 +34,8 @@ class PaymentApiControllerTest {
     }
 
     @Test
-    void 잔액조회시_returningCurrencyCode를_USD로_전달하면_USD를_기준으로_잔액결과과_반환된다() throws Exception {
+    @DisplayName("잔액조회시_returningCurrencyCode를_USD로_전달하면_USD를_기준으로_잔액결과과_반환된다")
+    void when_get_balance_if_returning_currency_code_is_usd_then_return_balance_with_usd_currency_code() throws Exception {
         mockMvc.perform(get("/api/payment/balance?userId=1&returningCurrencyCode=USD"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("userId").value("1"))
@@ -42,7 +44,8 @@ class PaymentApiControllerTest {
     }
 
     @Test
-    void 잔액조회시_returningCurrencyCode를_KRW로_전달하면_KRW를_기준으로_잔액결과과_반환된다() throws Exception {
+    @DisplayName("잔액조회시_returningCurrencyCode를_KRW로_전달하면_KRW를_기준으로_잔액결과과_반환된다")
+    void when_get_balance_if_returning_currency_code_is_krw_then_return_balance_with_krw_currency_code() throws Exception {
         mockMvc.perform(get("/api/payment/balance?userId=1&returningCurrencyCode=KRW"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("userId").value("1"))
@@ -61,7 +64,7 @@ class PaymentApiControllerTest {
                     "userId": 1
                 }
                 """;
-        
+
         mockMvc.perform(post("/api/payment/estimate")
                         .contentType("application/json")
                         .content(estimationPaymentRequestBody))

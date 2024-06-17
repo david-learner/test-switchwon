@@ -1,13 +1,17 @@
 package com.switchwon.payments.domain;
 
+import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Objects;
 
+@Embeddable
 public class Money {
 
-    private final Currency currency;
-    private final BigDecimal amount;
+    private Currency currency;
+    private BigDecimal amount;
+
+    protected Money() {}
 
     public Money(Currency currency, BigDecimal amount) {
         this.currency = currency;
@@ -16,6 +20,42 @@ public class Money {
 
     public Money(String currencyCode, BigDecimal amount) {
         this(Currency.getInstance(currencyCode), amount);
+    }
+
+    public Money add(Money target) {
+        if (!isSameCurrency(target)) {
+            throw new IllegalArgumentException("Cannot add different currencies.");
+        }
+
+        return new Money(currency, amount.add(target.getAmount()));
+    }
+
+    public Money subtract(Money target) {
+        if (!isSameCurrency(target)) {
+            throw new IllegalArgumentException("Cannot subtract different currencies.");
+        }
+
+        if (!isEqualOrBiggerThan(target)) {
+            throw new IllegalArgumentException("Cannot subtract bigger amount.");
+        }
+
+        return new Money(currency, amount.subtract(target.getAmount()));
+    }
+
+    public boolean isSameCurrency(Money target) {
+        return this.currency.equals(target.getCurrency());
+    }
+
+    public boolean isEqualOrBiggerThan(Money target) {
+        if (!isSameCurrency(target)) {
+            throw new IllegalArgumentException("Cannot compare different currencies.");
+        }
+
+        return this.compareTo(target) >= 0;
+    }
+
+    private int compareTo(Money target) {
+        return this.amount.compareTo(target.getAmount());
     }
 
     public Currency getCurrency() {

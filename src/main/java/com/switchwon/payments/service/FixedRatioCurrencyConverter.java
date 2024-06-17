@@ -1,12 +1,15 @@
 package com.switchwon.payments.service;
 
-import static com.switchwon.payments.domain.PaymentCurrency.*;
+import static com.switchwon.payments.domain.PaymentCurrency.KRW;
+import static com.switchwon.payments.domain.PaymentCurrency.USD;
 
 import com.switchwon.payments.domain.Money;
 import java.math.BigDecimal;
 import java.util.Currency;
+import org.springframework.stereotype.Component;
 
-public class MockCurrencyConverter implements CurrencyConverter {
+@Component
+public class FixedRatioCurrencyConverter implements CurrencyConverter {
 
     @Override
     public Money convert(Money money, Currency targetCurrency) {

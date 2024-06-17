@@ -3,6 +3,8 @@ package com.switchwon.payments.controller;
 import com.switchwon.payments.service.PaymentService;
 import com.switchwon.payments.service.dto.BalanceRetrievalRequest;
 import com.switchwon.payments.service.dto.BalanceRetrievalResponse;
+import com.switchwon.payments.service.dto.PaymentApprovalRequest;
+import com.switchwon.payments.service.dto.PaymentApprovalResponse;
 import com.switchwon.payments.service.dto.PaymentEstimationRequest;
 import com.switchwon.payments.service.dto.PaymentEstimationResponse;
 import org.slf4j.Logger;
@@ -38,4 +40,13 @@ public class PaymentApiController {
     public PaymentEstimationResponse estimatePayment(@RequestBody PaymentEstimationRequest request) {
         return paymentService.getEstimationPaymentResult(request);
     }
+
+    /**
+     * 결제를 승인한다
+     */
+    @PostMapping("/api/payment/approval")
+    public PaymentApprovalResponse approvePayment(@RequestBody PaymentApprovalRequest request) {
+        return paymentService.approvePayment(request);
+    }
+
 }

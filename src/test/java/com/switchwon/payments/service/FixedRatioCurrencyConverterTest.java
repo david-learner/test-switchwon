@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class MockCurrencyConverterTest {
+public class FixedRatioCurrencyConverterTest {
 
     @Test
     @DisplayName("1000원(KRW)을_USD로_변환하면_0.73달러(USD)가_나와야_한다")
     void when_1000KRW_is_converted_to_USD_then_converted_result_should_be_0_point_73_USD() {
-        final var converter = new MockCurrencyConverter();
+        final var converter = new FixedRatioCurrencyConverter();
         final var krwMoney = new Money(KRW, new BigDecimal("1000"));
 
         final var convertedUsdMoney = converter.convert(krwMoney, USD);
@@ -26,7 +26,7 @@ public class MockCurrencyConverterTest {
     @Test
     @DisplayName("1달러(USD)를_KRW로_변환하면_1374.49원(KRW)가_나와야_한다")
     void when_1USD_is_converted_to_KRW_then_converted_result_should_be_1374_point_49_KRW() {
-        final var converter = new MockCurrencyConverter();
+        final var converter = new FixedRatioCurrencyConverter();
         final var usdMoney = new Money(USD, new BigDecimal("1"));
 
         final var convertedKrwMoney = converter.convert(usdMoney, KRW);
