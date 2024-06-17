@@ -7,6 +7,7 @@ import com.switchwon.payments.domain.PaymentHistoryType;
 import com.switchwon.payments.domain.PaymentStatus;
 import com.switchwon.payments.repository.MerchantRepository;
 import com.switchwon.payments.repository.PaymentHistoryRepository;
+import com.switchwon.payments.repository.PaymentRepository;
 import com.switchwon.payments.repository.PointRepository;
 import com.switchwon.payments.repository.UserRepository;
 import com.switchwon.payments.service.dto.BalanceRetrievalRequest;
@@ -34,9 +35,9 @@ public class PaymentService {
     private final PointRepository pointRepository;
     private final UserRepository userRepository;
     private final MerchantRepository merchantRepository;
-    private final CardService cardService;
     private final PointService pointService;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final PaymentRepository paymentRepository;
 
     public PaymentService(
             CurrencyConverter currencyConverter,
@@ -45,15 +46,16 @@ public class PaymentService {
             MerchantRepository merchantRepository,
             CardService cardService,
             PointService pointService,
-            PaymentHistoryRepository paymentHistoryRepository
+            PaymentHistoryRepository paymentHistoryRepository,
+            PaymentRepository paymentRepository
     ) {
         this.currencyConverter = currencyConverter;
         this.pointRepository = pointRepository;
         this.userRepository = userRepository;
         this.merchantRepository = merchantRepository;
-        this.cardService = cardService;
         this.pointService = pointService;
         this.paymentHistoryRepository = paymentHistoryRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     /**
@@ -90,10 +92,10 @@ public class PaymentService {
         LOGGER.info("Payment approval request: {}", request);
 
         validateMerchant(request.getMerchantId());
-        final var payment = createPayment(request);
-        createPaymentHistory(payment, PaymentHistoryType.APPROVAL);
+        final var savedPayment = paymentRepository.save(createPayment(request));
+        createPaymentHistory(savedPayment, PaymentHistoryType.APPROVAL);
 
-        final Payment pointPayment = pointService.pay(request.getUserId(), request.toMoney(), payment);
+        final Payment pointPayment = pointService.pay(request.getUserId(), request.toMoney(), savedPayment);
 
         return new PaymentApprovalResponse(pointPayment);
     }
@@ -114,7 +116,7 @@ public class PaymentService {
         final var user = userRepository.findOneById(request.getUserId());
         final var payment = new Payment(
                 request.getPaymentMethod(),
-                request.getPaymentDetailsRequest().toPaymentDetails(),
+                request.getPaymentDetails().toPaymentDetails(),
                 PaymentStatus.PENDING,
                 user,
                 request.getMerchantId(),

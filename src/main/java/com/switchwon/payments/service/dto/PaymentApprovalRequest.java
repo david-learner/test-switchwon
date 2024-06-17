@@ -11,7 +11,7 @@ public class PaymentApprovalRequest {
     private String currency;
     private String merchantId;
     private PaymentMethod paymentMethod;
-    private PaymentDetailsRequest paymentDetailsRequest;
+    private PaymentDetailsRequest paymentDetails;
 
     public PaymentApprovalRequest(
             Long userId,
@@ -19,14 +19,14 @@ public class PaymentApprovalRequest {
             String currency,
             String merchantId,
             PaymentMethod paymentMethod,
-            PaymentDetailsRequest paymentDetailsRequest
+            PaymentDetailsRequest paymentDetails
     ) {
         this.userId = userId;
         this.amount = amount;
         this.currency = currency;
         this.merchantId = merchantId;
         this.paymentMethod = paymentMethod;
-        this.paymentDetailsRequest = paymentDetailsRequest;
+        this.paymentDetails = paymentDetails;
     }
 
     public Long getUserId() {
@@ -69,12 +69,12 @@ public class PaymentApprovalRequest {
         this.paymentMethod = paymentMethod;
     }
 
-    public PaymentDetailsRequest getPaymentDetailsRequest() {
-        return paymentDetailsRequest;
+    public PaymentDetailsRequest getPaymentDetails() {
+        return paymentDetails;
     }
 
-    public void setPaymentDetailsRequest(PaymentDetailsRequest paymentDetailsRequest) {
-        this.paymentDetailsRequest = paymentDetailsRequest;
+    public void setPaymentDetails(PaymentDetailsRequest paymentDetails) {
+        this.paymentDetails = paymentDetails;
     }
 
     public Money toMoney() {

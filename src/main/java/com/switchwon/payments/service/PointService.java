@@ -52,11 +52,17 @@ public class PointService {
 
         Payment cardPayment = null;
         if (!point.hasSufficientPointToPay(new Money(Point.PEGGED_CURRENCY, estimatedTotalAmount))) {
+
+            final BigDecimal amount = point.toMoney().getAmount();
+            final BigDecimal shortageAmount = estimatedTotalAmount.subtract(amount);
+
             cardPayment = cardService.pay(payment);
             final Payment savedCardPayment = paymentRepository.save(cardPayment);
             paymentHistoryRepository.save(createPaymentHistory(savedCardPayment));
+
+            point.add(new Money(Point.PEGGED_CURRENCY, shortageAmount));
         }
-        point.subtract(purchaseAmount);
+        point.subtract(convertedPurchaseAmount);
         pointRepository.save(point);
         payment.processed();
         return payment;
